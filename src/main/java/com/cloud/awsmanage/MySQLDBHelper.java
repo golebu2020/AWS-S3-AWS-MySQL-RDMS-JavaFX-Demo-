@@ -1,15 +1,14 @@
 package com.cloud.awsmanage;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.net.UnknownHostException;
+import java.sql.*;
 
 public class MySQLDBHelper {
 //    private static final String DRIVERNAME = "com.mysql.jdbc.Driver";
     private static final String CONNSTRING = "jdbc:mysql://" + "gtisma-database.cryku7jd8a0a.us-east-1.rds.amazonaws.com";
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "Nedu1234";
+    public static Runnable runnable;
 
 
     public static void getConnection() throws ClassNotFoundException {
@@ -22,7 +21,8 @@ public class MySQLDBHelper {
             stmt.executeUpdate(sql);
             System.out.println("Database created successfully...");
         } catch (SQLException e) {
-            e.printStackTrace();
+            //System.out.println(e.getMessage());
+            if(e.getMessage().startsWith("Access denied")) System.out.println("Wrong Credentials Entered");
         }
     }
 
@@ -70,5 +70,45 @@ public class MySQLDBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    public static void selectRecord(String dbName){
+
+        System.out.println("Connecting...");
+        runnable  = () -> {
+            final String QUERY = "SELECT id, first, last FROM REGISTRATION";
+            // Open a connection
+            try(Connection conn = DriverManager.getConnection(CONNSTRING+"/"+dbName, USERNAME, PASSWORD);
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(QUERY);
+            ) {
+                while(rs.next()){
+                    //Display values
+                    System.out.print("ID: " + rs.getInt("id"));
+                    System.out.print(", First: " + rs.getString("first"));
+                    System.out.println(", Last: " + rs.getString("last"));
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        };
+        Thread thread1 = new Thread(runnable);
+        thread1.start();
+        while(true){
+            if(!(thread1.isAlive())){
+                System.out.println("Thread has ended");
+                System.out.println("Done!");
+                break;
+            }
+        }
+
+
+
+    }
+
+    public static void displayStateAndIsAlive(Thread thread) {
+        // java.lang.Thread.State can be NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
+        System.out.println("State:" + thread.getState());
+        System.out.println("Is alive?:" + thread.isAlive());
     }
 }
