@@ -41,7 +41,6 @@ public class AWSCognito {
                 .withDesiredDeliveryMediums(DeliveryMediumType.EMAIL)
                 .withForceAliasCreation(Boolean.FALSE);
         AdminCreateUserResult createUserResult =  cognitoClient.adminCreateUser(cognitoRequest);
-
         return createUserResult.getUser();
     }
 }
