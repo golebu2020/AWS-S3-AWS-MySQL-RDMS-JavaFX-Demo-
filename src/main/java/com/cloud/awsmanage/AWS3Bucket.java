@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 
 import java.util.List;
 
-public class CreateBucket {
+public class AWS3Bucket {
     public static final String AWS_ACCESS_KEY = System.getenv("ACCESS_KEY_ID");
     public static final String AWS_SECERT_KEY = System.getenv("SECRET_ACCESS_KEY");
     private static final AwsCredentials credentials = AwsBasicCredentials.create(AWS_ACCESS_KEY, AWS_SECERT_KEY);

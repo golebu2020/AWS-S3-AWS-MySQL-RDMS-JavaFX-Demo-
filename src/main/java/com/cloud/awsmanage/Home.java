@@ -1,16 +1,19 @@
 package com.cloud.awsmanage;
 
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.cognitoidp.model.SignUpResult;
+import com.amazonaws.services.cognitoidp.model.UserType;
+import com.amazonaws.services.cognitoidp.model.UsernameExistsException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Home extends Application {
     public static void main(String[] args) {
@@ -26,10 +29,31 @@ public class Home extends Application {
         Button createTable = new Button("Create Table");
         Button btnInsert = new Button("Insert Record");
         Button btnSelect = new Button("Select from Record");
+        Button btnCreateClient = new Button("Create Cognito Client");
+        btnCreateClient.setOnAction(e -> {
+            Thread thread = new Thread(() -> {
+                try {
+                    UserType userType = AWSCognito.signUp();
+                    System.out.println(userType.toString());
+                }
+                catch(UsernameExistsException ignored){
+                    System.out.println("User Account already exists");
+                }
+                catch(SdkClientException ignored){
+                    System.out.println("Check your internet connection");
+                }
+            });
+            thread.start();
+        });
+
         Label label = new Label("state");
         btnSelect.setOnAction(e -> {
-            MySQLDBHelper.selectRecord("STUDENTS");
-
+            label.setText("Connecting");
+            Thread taskThread = new Thread(() -> {
+                MySQLDBHelper.selectRecord("STUDENTS");
+                Platform.runLater(() -> label.setText("Done!"));
+            });
+            taskThread.start();
         });
         btnInsert.setOnAction(e -> MySQLDBHelper.insertRecord("STUDENTS"));
         connectDB.setOnAction(e -> MySQLDBHelper.selectDB("STUDENTS"));
@@ -42,12 +66,11 @@ public class Home extends Application {
                 classNotFoundException.printStackTrace();
             }
         });
-        btnAWS.setOnAction(e -> CreateBucket.listBuckets());
+        btnAWS.setOnAction(e -> AWS3Bucket.listBuckets());
         pane.getChildren().addAll(btnAWS, btnDB, connectDB,
-                createTable, btnInsert, btnSelect, new Button("Do nothing"), label);
+                createTable, btnInsert, btnSelect, new Button("Do nothing"), label, btnCreateClient);
         Scene scene = new Scene(pane,400,300);
         stage.setScene(scene);
         stage.show();
     }
-
 }

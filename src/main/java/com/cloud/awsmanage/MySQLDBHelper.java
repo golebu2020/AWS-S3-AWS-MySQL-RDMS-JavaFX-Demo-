@@ -1,5 +1,7 @@
 package com.cloud.awsmanage;
 
+import javafx.application.Platform;
+
 import java.net.UnknownHostException;
 import java.sql.*;
 
@@ -8,7 +10,7 @@ public class MySQLDBHelper {
     private static final String CONNSTRING = "jdbc:mysql://" + "gtisma-database.cryku7jd8a0a.us-east-1.rds.amazonaws.com";
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "Nedu1234";
-    public static Runnable runnable;
+    //public static Runnable runnable;
 
 
     public static void getConnection() throws ClassNotFoundException {
@@ -74,8 +76,6 @@ public class MySQLDBHelper {
     
     public static void selectRecord(String dbName){
 
-        System.out.println("Connecting...");
-        runnable  = () -> {
             final String QUERY = "SELECT id, first, last FROM REGISTRATION";
             // Open a connection
             try(Connection conn = DriverManager.getConnection(CONNSTRING+"/"+dbName, USERNAME, PASSWORD);
@@ -91,19 +91,6 @@ public class MySQLDBHelper {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-        };
-        Thread thread1 = new Thread(runnable);
-        thread1.start();
-        while(true){
-            if(!(thread1.isAlive())){
-                System.out.println("Thread has ended");
-                System.out.println("Done!");
-                break;
-            }
-        }
-
-
-
     }
 
     public static void displayStateAndIsAlive(Thread thread) {
