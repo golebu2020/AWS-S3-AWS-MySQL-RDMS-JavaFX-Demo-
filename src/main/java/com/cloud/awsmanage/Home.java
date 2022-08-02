@@ -30,6 +30,7 @@ public class Home extends Application {
         Button btnInsert = new Button("Insert Record");
         Button btnSelect = new Button("Select from Record");
         Button btnCreateClient = new Button("Create Cognito Client");
+        Label labelStatus = new Label("Current Status:");
         btnCreateClient.setOnAction(e -> {
             Thread thread = new Thread(() -> {
                 try {
@@ -38,9 +39,11 @@ public class Home extends Application {
                 }
                 catch(UsernameExistsException ignored){
                     System.out.println("User Account already exists");
+                    Platform.runLater(() -> labelStatus.setText("User Account already exists"));
+
                 }
                 catch(SdkClientException ignored){
-                    System.out.println("Check your internet connection");
+                    Platform.runLater(() -> labelStatus.setText("Check your internet connection"));
                 }
             });
             thread.start();
@@ -66,9 +69,14 @@ public class Home extends Application {
                 classNotFoundException.printStackTrace();
             }
         });
-        btnAWS.setOnAction(e -> AWS3Bucket.listBuckets());
+        btnAWS.setOnAction(e -> {
+            List<String> strings = AWS3Bucket.listBuckets();
+            for(String string : strings){
+                labelStatus.setText(labelStatus.getText()+"\n" + strings);
+            }
+        });
         pane.getChildren().addAll(btnAWS, btnDB, connectDB,
-                createTable, btnInsert, btnSelect, new Button("Do nothing"), label, btnCreateClient);
+                createTable, btnInsert, btnSelect, new Button("Do nothing"), label, btnCreateClient,labelStatus);
         Scene scene = new Scene(pane,400,300);
         stage.setScene(scene);
         stage.show();

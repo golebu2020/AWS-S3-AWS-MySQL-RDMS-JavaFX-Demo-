@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AWS3Bucket {
@@ -32,12 +33,15 @@ public class AWS3Bucket {
         System.out.println("Bucket Created");
     }
 
-    public static void listBuckets(){
+    public static List<String> listBuckets(){
+        List<String> buck = new ArrayList<>();
         ListBucketsResponse buckets = s3Client.listBuckets();
         System.out.println("Your {S3} buckets are:");
         List<Bucket> buckets1 = buckets.buckets();
         for(Bucket b: buckets1){
             System.out.println(b.name());
+            buck.add(b.name());
         }
+        return buck;
     }
 }
